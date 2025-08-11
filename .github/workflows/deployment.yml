@@ -37,6 +37,9 @@ jobs:
           extensions: mbstring, intl, zip, gd, curl, sodium, opcache
           coverage: none
 
+      - name: Require Deployment Helper
+        run: composer require shopware/deployment-helper --no-interaction --no-progress
+
       - name: Install Composer dependencies (prod)
         run: composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist --no-scripts
 
@@ -55,7 +58,7 @@ jobs:
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
           php bin/ci bundle:dump
-          ./bin/build-storefront.sh
+          SHOPWARE_SKIP_THEME_COMPILE=true ./bin/build-storefront.sh
           ./bin/build-administration.sh
           CI=1 php bin/ci assets:install --no-interaction
 
@@ -171,7 +174,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
             "cd ${{ vars.DEPLOY_PATH }}/current && \
-            ${{ vars.PHP_BINARY }} bin/console theme:refresh || true
+            ${{ vars.PHP_BINARY }} bin/console theme:compile --no-interaction
             ${{ vars.PHP_BINARY }} bin/console cache:clear
             ${{ vars.PHP_BINARY }} bin/console cache:warmup
             ${{ vars.PHP_BINARY }} bin/console dal:refresh:index || true
