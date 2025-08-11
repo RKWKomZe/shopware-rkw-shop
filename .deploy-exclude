@@ -1,0 +1,23 @@
+# Git & VCS
+.git/
+.gitignore
+.gitattributes
+
+# Lokale Dev-Ordner
+node_modules/
+**/node_modules/
+.idea/
+.vscode/
+
+# OS-Trash
+.DS_Store
+Thumbs.db
+
+# Server-lokale Uploads & Caches (liegen i. d. R. im shared/)
+shopware/files/
+shopware/public/media/
+shopware/public/thumbnail/
+shopware/var/
+
+# CI/Pipeline-Meta
+.deploy-exclude
