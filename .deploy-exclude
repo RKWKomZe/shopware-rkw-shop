@@ -1,19 +1,36 @@
-# Git & VCS
-.git/
-.gitignore
-.gitattributes
-
-# Lokale Dev-Ordner
-node_modules/
-**/node_modules/
-.idea/
-.vscode/
-
-# OS-Trash
+*.log
 .DS_Store
-Thumbs.db
+.bowerrc
+.build
+.buildpath
+.bundle
+.editorconfig
+.gitignore
+.git*
+.idea
+.node-version
+.project
+.settings
+.vscode
+Capfile
+Gemfile*
+LICENSE.*
+README.*
+Rakefile
+Readme.*
+gulpfile.js
+node_modules
+package.json
+composer.json
 
-# Server-lokale Uploads & Caches (liegen i. d. R. im shared/)
+Tests/
+
+/.ddev
+/.dev
+/.surf
+/.scripts
+
+# uploads and caches (shared)
 shopware/files/
 shopware/public/media/
 shopware/public/thumbnail/
@@ -21,3 +38,4 @@ shopware/var/
 
 # CI/Pipeline-Meta
 .deploy-exclude
+.deploy-sharedy

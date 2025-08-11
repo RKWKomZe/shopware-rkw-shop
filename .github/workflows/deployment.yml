@@ -19,9 +19,6 @@ jobs:
     outputs:
       release_name: ${{ steps.set_release_name.outputs.release_name }}
     environment: production
-    defaults:
-      run:
-        working-directory: shopware
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,10 +35,14 @@ jobs:
           coverage: none
 
       - name: Require Deployment Helper
-        run: composer require shopware/deployment-helper --no-interaction --no-progress
+        run: |
+          cd shopware
+          composer require shopware/deployment-helper --no-interaction --no-progress
 
       - name: Install Composer dependencies (prod)
-        run: composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist --no-scripts
+        run: |
+          cd shopware
+          composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist --no-scripts
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,6 +51,7 @@ jobs:
 
       - name: Build assets without DB (CI mode)
         run: |
+          cd shopware
           export APP_ENV=prod
           export CI=1
           export INSTALL=1
@@ -113,7 +115,7 @@ jobs:
         run: |
           rsync -az --delete \
             --exclude-from=$GITHUB_WORKSPACE/.deploy-exclude \
-            ./ \
+            shopware/ \
             ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}/
 
       - name: Create shared symlinks and create missing folders
