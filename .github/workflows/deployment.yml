@@ -37,8 +37,11 @@ jobs:
           extensions: mbstring, intl, zip, gd, curl, sodium, opcache
           coverage: none
 
+      #- name: Install lock
+      #  run: touch install.lock
+
       - name: Install Composer dependencies (prod)
-        run: composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist
+        run: composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist --no-scripts
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
