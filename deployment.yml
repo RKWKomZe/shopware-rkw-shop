@@ -76,13 +76,13 @@ jobs:
       - name: Replace placeholders in config
         run: |
           config_file=config/system/additional.php
-          sed -i "s|###TYPO3_DB_HOST###|${{ vars.TYPO3_DB_HOST }}|g" $config_file || true
-          sed -i "s|###TYPO3_DB_NAME###|${{ vars.TYPO3_DB_NAME }}|g" $config_file || true
-          sed -i "s|###TYPO3_DB_USER###|${{ vars.TYPO3_DB_USER }}|g" $config_file || true
-          sed -i "s|###TYPO3_DB_PASSWORD###|${{ secrets.TYPO3_DB_PASSWORD }}|g" $config_file || true
-          sed -i "s|###SMTP_USER###|${{ vars.SMTP_USER }}|g" $config_file || true
-          sed -i "s|###SMTP_HOST###|${{ vars.SMTP_HOST }}|g" $config_file || true
-          sed -i "s|###SMTP_PASSWORD###|${{ secrets.SMTP_PASSWORD }}|g" $config_file || true
+          sed -i "s|___TYPO3_DB_HOST___|${{ vars.TYPO3_DB_HOST }}|g" $config_file || true
+          sed -i "s|___TYPO3_DB_NAME___|${{ vars.TYPO3_DB_NAME }}|g" $config_file || true
+          sed -i "s|___TYPO3_DB_USER___|${{ vars.TYPO3_DB_USER }}|g" $config_file || true
+          sed -i "s|___TYPO3_DB_PASSWORD___|${{ secrets.TYPO3_DB_PASSWORD }}|g" $config_file || true
+          sed -i "s|___SMTP_USER___|${{ vars.SMTP_USER }}|g" $config_file || true
+          sed -i "s|___SMTP_HOST___|${{ vars.SMTP_HOST }}|g" $config_file || true
+          sed -i "s|___SMTP_PASSWORD___|${{ secrets.SMTP_PASSWORD }}|g" $config_file || true
 
       - name: Setup SSH access
         run: |
