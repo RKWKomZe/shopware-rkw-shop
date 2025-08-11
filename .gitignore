@@ -1,0 +1,44 @@
+# Version 1.0.3
+# =======================================================
+# Ignore editor-files, vendor and other basic stuff
+# =======================================================
+.DS_Store
+.build
+node_modules
+bower_components
+vendor
+
+/.buildpath
+/.bowerrc
+/.bundle
+/.env
+/.idea
+/.project
+/.php-version
+/.phpunit.result.cache
+/.settings
+
+# =======================================================
+# Files for development and deployment
+# =======================================================
+/.ddev/*
+!/.ddev/config.yaml
+!/.ddev/docker-compose.typo3-solr.yaml
+!/.ddev/docker-compose.hosts.yaml
+!/.ddev/commands
+!/.ddev/php
+!/.ddev/nginx
+/.dev/*.sql
+/.surf/Credentials/*
+!/.surf/Credentials/_Example.php
+/.dumps
+
+# =======================================================
+# Ignore locally used htaccess, test-files and assets
+# =======================================================
+/shopware/public/.htaccess
+/shopware//public/.htpasswd
+
+# =======================================================
+# Add custom stuff here
+# =======================================================
