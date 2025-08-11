@@ -88,16 +88,16 @@ jobs:
       - name: Replace placeholders in config
         run: |
           config_file="shopware/.env.${ENVIRONMENT}"
-          sed -i "s|###APP_SECRET###|${{ secrets.APP_SECRET }}|g" $config_file || true
-          sed -i "s|###INSTANCE_ID###|${{ secrets.INSTANCE_ID }}|g" $config_file || true
-          sed -i "s|###DEPLOY_PATH###|${{ vars.DEPLOY_PATH }}|g" $config_file || true
-          sed -i "s|###DB_HOST###|${{ vars.DB_HOST }}|g" $config_file || true
-          sed -i "s|###DB_NAME###|${{ vars.DB_NAME }}|g" $config_file || true
-          sed -i "s|###DB_USER###|${{ vars.DB_USER }}|g" $config_file || true
-          sed -i "s|###DB_PASSWORD###|${{ secrets.DB_PASSWORD }}|g" $config_file || true
-          sed -i "s|###SMTP_USER###|${{ vars.SMTP_USER }}|g" $config_file || true
-          sed -i "s|###SMTP_HOST###|${{ vars.SMTP_HOST }}|g" $config_file || true
-          sed -i "s|###SMTP_PASSWORD###|${{ secrets.SMTP_PASSWORD }}|g" $config_file || true
+          sed -i "s|___APP_SECRET___|${{ secrets.APP_SECRET }}|g" $config_file || true
+          sed -i "s|___INSTANCE_ID___|${{ secrets.INSTANCE_ID }}|g" $config_file || true
+          sed -i "s|___DEPLOY_PATH___|${{ vars.DEPLOY_PATH }}|g" $config_file || true
+          sed -i "s|___DB_HOST___|${{ vars.DB_HOST }}|g" $config_file || true
+          sed -i "s|___DB_NAME___|${{ vars.DB_NAME }}|g" $config_file || true
+          sed -i "s|___DB_USER___|${{ vars.DB_USER }}|g" $config_file || true
+          sed -i "s|___DB_PASSWORD___|${{ secrets.DB_PASSWORD }}|g" $config_file || true
+          sed -i "s|___SMTP_USER___|${{ vars.SMTP_USER }}|g" $config_file || true
+          sed -i "s|___SMTP_HOST___|${{ vars.SMTP_HOST }}|g" $config_file || true
+          sed -i "s|___SMTP_PASSWORD___|${{ secrets.SMTP_PASSWORD }}|g" $config_file || true
 
       - name: Setup SSH access
         run: |
