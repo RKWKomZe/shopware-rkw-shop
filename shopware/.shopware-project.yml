@@ -10,6 +10,13 @@ theme:
 assets:
   install: false                  # assets:install ausführen
 
+database:
+  migrate: true
+
+cache:
+  clear: true
+  warmup: true
+
 hooks:
   pre: []                        # vor allem
   post: []                       # nach allem

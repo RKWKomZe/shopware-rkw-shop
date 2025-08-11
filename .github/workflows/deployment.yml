@@ -164,18 +164,3 @@ jobs:
             cd ${{ vars.DEPLOY_PATH }}/current && \
             ${{ vars.PHP_BINARY }} vendor/bin /shopware-deployment-helper run
           "
-      - name: Database migrations
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "
-            cd ${{ vars.DEPLOY_PATH }}/current && \
-            ${{ vars.PHP_BINARY }} bin/console database:migrate --all --no-interaction
-          "
-      - name: Rebuild container & caches
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
-            "cd ${{ vars.DEPLOY_PATH }}/current && \
-            ${{ vars.PHP_BINARY }} bin/console theme:compile --no-interaction
-            ${{ vars.PHP_BINARY }} bin/console cache:clear
-            ${{ vars.PHP_BINARY }} bin/console cache:warmup
-            ${{ vars.PHP_BINARY }} bin/console dal:refresh:index || true
-          "
