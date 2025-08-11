@@ -151,8 +151,7 @@ jobs:
              ${{ vars.PHP_BINARY }} bin/console --no-interaction || true"
 
       - name: Build storefront & admin
-        run: php bin/console theme:compile --no-interaction
-        un: |
+        run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
             "cd ${{ vars.DEPLOY_PATH }}/current && \
              ${{ vars.PHP_BINARY }} bin/console theme:compile --no-interaction || true"
