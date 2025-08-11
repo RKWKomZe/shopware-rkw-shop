@@ -19,6 +19,9 @@ jobs:
     outputs:
       release_name: ${{ steps.set_release_name.outputs.release_name }}
     environment: production
+    defaults:
+      run:
+        working-directory: shopware
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,11 +47,11 @@ jobs:
 
       - name: Prepare Shopware assets
         run: |
-          php shopware/bin/console bundle:dump
-          php shopware/bin/console assets:install --no-interaction
+          php bin/console bundle:dump
+          php bin/console assets:install --no-interaction
 
       - name: Build storefront & admin
-        run: php shopware/bin/console theme:compile --no-interaction
+        run: php bin/console theme:compile --no-interaction
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
