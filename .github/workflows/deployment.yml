@@ -45,15 +45,20 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Prepare Shopware assets (no DB)
-        run: |
-          INSTALL=1 php bin/console bundle:dump
-          INSTALL=1 php bin/console assets:install --no-interaction
+      # Plugins dumpen OHNE DB
+      - name: Dump bundles (no DB, use bin/ci)
+        run: CI=1 php bin/ci bundle:dump
 
-      - name: Build storefront & admin (no DB)
-        run: |
-          ./bin/build-storefront.sh
-          ./bin/build-administration.sh
+      # Administration & Storefront bauen OHNE DB
+      - name: Build administration (no DB)
+        run: CI=1 ./bin/build-administration.sh
+
+      - name: Build storefront JS only (no DB)
+        run: CI=1 SHOPWARE_SKIP_THEME_COMPILE=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true ./bin/build-storefront.sh
+
+      # (optional) Assets kopieren – geht i.d.R. ohne DB
+      - name: Install assets (no DB)
+        run: CI=1 php bin/ci assets:install --no-interaction
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
