@@ -60,71 +60,71 @@ jobs:
             shopware/public/theme/
             shopware/composer.lock
 
-deploy:
-  needs: prepare
-  runs-on: ubuntu-latest
-  environment: production
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
 
-    - name: Replace placeholders in config
-      run: |
-        config_file="shopware/.env.${ENVIRONMENT}"
-        sed -i "s|###APP_SECRET###|${{ secrets.APP_SECRET }}|g" $config_file || true
-        sed -i "s|###INSTANCE_ID###|${{ secrets.INSTANCE_ID }}|g" $config_file || true
-        sed -i "s|###DEPLOY_PATH###|${{ vars.DEPLOY_PATH }}|g" $config_file || true
-        sed -i "s|###DB_HOST###|${{ vars.DB_HOST }}|g" $config_file || true
-        sed -i "s|###DB_NAME###|${{ vars.DB_NAME }}|g" $config_file || true
-        sed -i "s|###DB_USER###|${{ vars.DB_USER }}|g" $config_file || true
-        sed -i "s|###DB_PASSWORD###|${{ secrets.DB_PASSWORD }}|g" $config_file || true
-        sed -i "s|###SMTP_USER###|${{ vars.SMTP_USER }}|g" $config_file || true
-        sed -i "s|###SMTP_HOST###|${{ vars.SMTP_HOST }}|g" $config_file || true
-        sed -i "s|###SMTP_PASSWORD###|${{ secrets.SMTP_PASSWORD }}|g" $config_file || true
+      - name: Replace placeholders in config
+        run: |
+          config_file="shopware/.env.${ENVIRONMENT}"
+          sed -i "s|###APP_SECRET###|${{ secrets.APP_SECRET }}|g" $config_file || true
+          sed -i "s|###INSTANCE_ID###|${{ secrets.INSTANCE_ID }}|g" $config_file || true
+          sed -i "s|###DEPLOY_PATH###|${{ vars.DEPLOY_PATH }}|g" $config_file || true
+          sed -i "s|###DB_HOST###|${{ vars.DB_HOST }}|g" $config_file || true
+          sed -i "s|###DB_NAME###|${{ vars.DB_NAME }}|g" $config_file || true
+          sed -i "s|###DB_USER###|${{ vars.DB_USER }}|g" $config_file || true
+          sed -i "s|###DB_PASSWORD###|${{ secrets.DB_PASSWORD }}|g" $config_file || true
+          sed -i "s|###SMTP_USER###|${{ vars.SMTP_USER }}|g" $config_file || true
+          sed -i "s|###SMTP_HOST###|${{ vars.SMTP_HOST }}|g" $config_file || true
+          sed -i "s|###SMTP_PASSWORD###|${{ secrets.SMTP_PASSWORD }}|g" $config_file || true
 
-    - name: Setup SSH access
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Setup SSH access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Create release directory on server
-      run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "mkdir -p ${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}"
+      - name: Create release directory on server
+        run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "mkdir -p ${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}"
 
-    - name: Rsync code to release (exclude env files)
-      run: |
-        rsync -az --delete \
-          --exclude-from=$GITHUB_WORKSPACE/.deploy-exclude \
-          ./ \
-          ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}/
+      - name: Rsync code to release (exclude env files)
+        run: |
+          rsync -az --delete \
+            --exclude-from=$GITHUB_WORKSPACE/.deploy-exclude \
+            ./ \
+            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}/
 
-    - name: Create shared symlinks and create missing folders
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "
-          set -e
-          release_dir='${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}'
-          shared_dir='${{ vars.DEPLOY_PATH }}/shared'
-          deploy_file=\"\$release_dir/.deploy-shared\"
+      - name: Create shared symlinks and create missing folders
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "
+            set -e
+            release_dir='${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}'
+            shared_dir='${{ vars.DEPLOY_PATH }}/shared'
+            deploy_file=\"\$release_dir/.deploy-shared\"
 
-          while IFS=',' read -r source target; do
-            source=\$(echo \"\$source\" | xargs)
-            target=\$(echo \"\$target\" | xargs)
+            while IFS=',' read -r source target; do
+              source=\$(echo \"\$source\" | xargs)
+              target=\$(echo \"\$target\" | xargs)
 
-            target_path=\"\$release_dir/\$target\"
-            source_path=\"\$shared_dir/\$source\"
+              target_path=\"\$release_dir/\$target\"
+              source_path=\"\$shared_dir/\$source\"
 
-            mkdir -p \"\$source_path\"
-            mkdir -p \$(dirname \"\$target_path\")
-            ln -sfn \"\$source_path\" \"\$target_path\"
-          done < \"\$deploy_file\"
-          fi
-        "
+              mkdir -p \"\$source_path\"
+              mkdir -p \$(dirname \"\$target_path\")
+              ln -sfn \"\$source_path\" \"\$target_path\"
+            done < \"\$deploy_file\"
+            fi
+          "
 
-    - name: Update current symlink
-      run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "ln -sfn ${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }} ${{ vars.DEPLOY_PATH }}/current"
+      - name: Update current symlink
+        run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "ln -sfn ${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }} ${{ vars.DEPLOY_PATH }}/current"
