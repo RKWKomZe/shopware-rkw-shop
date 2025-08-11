@@ -1,0 +1,20 @@
+# .shopware-project.yml
+extension-management:
+  install-missing: true          # installiere fehlende Plugins/Apps
+  update-existing: true          # update vorhandene
+  activate-installed: true
+
+theme:
+  compile: false                  # Theme nach Deploy kompilieren
+
+assets:
+  install: false                  # assets:install ausführen
+
+hooks:
+  pre: []                        # vor allem
+  post: []                       # nach allem
+
+one-time-tasks:
+  - id: "reindex-after-6-6"
+    command: "bin/console dal:refresh:index"
+
