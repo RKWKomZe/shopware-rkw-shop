@@ -37,9 +37,6 @@ jobs:
           extensions: mbstring, intl, zip, gd, curl, sodium, opcache
           coverage: none
 
-      #- name: Install lock
-      #  run: touch install.lock
-
       - name: Install Composer dependencies (prod)
         run: composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist --no-scripts
 
@@ -48,12 +45,24 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Prepare Shopware assets (no DB)
+        run: |
+          INSTALL=1 php bin/console bundle:dump
+          INSTALL=1 php bin/console assets:install --no-interaction
+
+      - name: Build storefront & admin (no DB)
+        run: |
+          ./bin/build-storefront.sh
+          ./bin/build-administration.sh
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
             shopware/vendor/
+            shopware/public/bundles/
+            shopware/public/theme/
             shopware/composer.lock
 
   deploy:
@@ -108,6 +117,11 @@ jobs:
             shared_dir='${{ vars.DEPLOY_PATH }}/shared'
             deploy_file=\"\$release_dir/.deploy-shared\"
 
+            if [[ ! -f \"\$deploy_file\" ]]; then
+              echo 'No .deploy-shared file found. Skipping symlinks.'
+              exit 0
+            fi
+
             while IFS=',' read -r source target; do
               source=\$(echo \"\$source\" | xargs)
               target=\$(echo \"\$target\" | xargs)
@@ -119,7 +133,6 @@ jobs:
               mkdir -p \$(dirname \"\$target_path\")
               ln -sfn \"\$source_path\" \"\$target_path\"
             done < \"\$deploy_file\"
-            fi
           "
 
       - name: Update current symlink
@@ -143,23 +156,11 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
             "cd ${{ vars.DEPLOY_PATH }}/current && ${{ vars.PHP_BINARY }} bin/console database:migrate --all --no-interaction"
 
-      - name: Prepare Shopware assets
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
-          "cd ${{ vars.DEPLOY_PATH }}/current && \
-           ${{ vars.PHP_BINARY }} bin/console bundle:dump && \
-             ${{ vars.PHP_BINARY }} bin/console --no-interaction || true"
-
-      - name: Build storefront & admin
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
-            "cd ${{ vars.DEPLOY_PATH }}/current && \
-             ${{ vars.PHP_BINARY }} bin/console theme:compile --no-interaction || true"
-
       - name: Rebuild container & caches
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
             "cd ${{ vars.DEPLOY_PATH }}/current && \
+             ${{ vars.PHP_BINARY }} theme:compile --no-interaction && \
              ${{ vars.PHP_BINARY }} bin/console cache:clear && \
              ${{ vars.PHP_BINARY }} bin/console cache:warmup && \
              ${{ vars.PHP_BINARY }} bin/console dal:refresh:index || true"
