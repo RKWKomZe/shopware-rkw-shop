@@ -48,22 +48,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Prepare Shopware assets
-        run: |
-          php bin/console bundle:dump
-          php bin/console assets:install --no-interaction
-
-      - name: Build storefront & admin
-        run: php bin/console theme:compile --no-interaction
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
             shopware/vendor/
-            shopware/public/bundles/
-            shopware/public/theme/
             shopware/composer.lock
 
   deploy:
@@ -134,3 +124,43 @@ jobs:
 
       - name: Update current symlink
         run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "ln -sfn ${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }} ${{ vars.DEPLOY_PATH }}/current"
+
+
+  finalize:
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Setup SSH access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run DB migrations
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+            "cd ${{ vars.DEPLOY_PATH }}/current && ${{ vars.PHP_BINARY }} bin/console database:migrate --all --no-interaction"
+
+      - name: Prepare Shopware assets
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+          "cd ${{ vars.DEPLOY_PATH }}/current && \
+           ${{ vars.PHP_BINARY }} bin/console bundle:dump && \
+             ${{ vars.PHP_BINARY }} bin/console --no-interaction || true"
+
+      - name: Build storefront & admin
+        run: php bin/console theme:compile --no-interaction
+        un: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+            "cd ${{ vars.DEPLOY_PATH }}/current && \
+             ${{ vars.PHP_BINARY }} bin/console theme:compile --no-interaction || true"
+
+      - name: Rebuild container & caches
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+            "cd ${{ vars.DEPLOY_PATH }}/current && \
+             ${{ vars.PHP_BINARY }} bin/console cache:clear && \
+             ${{ vars.PHP_BINARY }} bin/console cache:warmup && \
+             ${{ vars.PHP_BINARY }} bin/console dal:refresh:index || true"
