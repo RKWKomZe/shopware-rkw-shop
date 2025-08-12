@@ -1,1 +1,0 @@
-const e=`{% block sw_cms_element_sidebar_filter_config %} <div class="sw-cms-el-config-sidebar-filter"> {% block sw_cms_element_sidebar_filter_config_info %} <mt-banner variant="info"> {{ $tc('sw-cms.elements.general.config.infoText.listingElement') }} </mt-banner> {% endblock %} </div> {% endblock %}`,n={template:e};export{n as default};

@@ -1,1 +1,0 @@
-const t={computed:{operator:{get(){return this.condition.value?this.condition.value.isNet:null},set(i){this.condition.value||(this.condition.value={}),this.condition.value={...this.condition.value,isNet:i}}}}};export{t as default};

@@ -1,1 +1,0 @@
-const e='{% block sw_cms_block_image_three_cover %} <div class="sw-cms-block-image-three-cover"> <slot name="left"></slot> <slot name="center"></slot> <slot name="right"></slot> </div> {% endblock %}',t={template:e};export{t as default};

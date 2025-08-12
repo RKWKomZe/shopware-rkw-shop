@@ -1,1 +1,0 @@
-const e='{% block sw_skeleton_bar %} <div class="sw-skeleton-bar"> <div class="sw-skeleton-bar__shimmer"></div> </div> {% endblock %}',o=Shopware.Component.wrapComponentConfig({template:e});export{o as default};
