@@ -30,10 +30,10 @@ Tests/
 /.scripts
 
 # uploads and caches (shared)
-shopware/files/
-shopware/public/media/
-shopware/public/thumbnail/
-shopware/var/
+/files/
+/public/media/
+/public/thumbnail/
+/var/
 
 # CI/Pipeline-Meta
 .deploy-exclude

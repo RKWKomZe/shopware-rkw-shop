@@ -141,9 +141,8 @@ jobs:
 
               if [[ ! -f \"\$source_path\" ]]; then
                 mkdir -p \"\$source_path\"
-                mkdir -p \$(dirname \"\$target_path\")
               fi
-
+              mkdir -p \$(dirname \"\$target_path\")
               ln -sfn \"\$source_path\" \"\$target_path\"
             done < \"\$deploy_file\"
           "
