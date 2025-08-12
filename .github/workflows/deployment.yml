@@ -139,8 +139,11 @@ jobs:
               target_path=\"\$release_dir/\$target\"
               source_path=\"\$shared_dir/\$source\"
 
-              mkdir -p \"\$source_path\"
-              mkdir -p \$(dirname \"\$target_path\")
+              if [[ ! -f \"\$source_path\" ]]; then
+                mkdir -p \"\$source_path\"
+                mkdir -p \$(dirname \"\$target_path\")
+              fi
+
               ln -sfn \"\$source_path\" \"\$target_path\"
             done < \"\$deploy_file\"
           "
