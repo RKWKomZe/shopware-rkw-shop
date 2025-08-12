@@ -37,4 +37,3 @@ shopware/var/
 
 # CI/Pipeline-Meta
 .deploy-exclude
-.deploy-sharedy
