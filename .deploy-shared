@@ -1,4 +1,5 @@
-files,shopware/files
-public/media,shopware/public/media
-public/thumbnail,shopware/public/thumbnail
-var/log,shopware/var/log
+files,files
+public/media,public/media
+public/thumbnail,public/thumbnail
+var/log,var/log
+install.lock,install.lock

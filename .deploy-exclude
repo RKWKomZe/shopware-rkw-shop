@@ -21,7 +21,6 @@ Readme.*
 gulpfile.js
 node_modules
 package.json
-composer.json
 
 Tests/
 
