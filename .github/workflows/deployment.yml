@@ -115,7 +115,7 @@ jobs:
       - name: Rsync code to release (exclude env files)
         run: |
           rsync -az --delete \
-            --exclude-from=$GITHUB_WORKSPACE/.deploy-exclude \
+            --exclude-from=$GITHUB_WORKSPACE/shopware/.deploy-exclude \
             shopware/ \
             ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:${{ vars.DEPLOY_PATH }}/releases/${{ needs.prepare.outputs.release_name }}/
 
