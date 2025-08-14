@@ -1,0 +1,40 @@
+#!/bin/bash
+
+## Description: Fetch a database from production and load it into current project
+## Usage: fetch-production-db
+## Example: "ddev fetch-production-db"
+
+set -o errexit pipefail nounset
+#set -x
+
+SSH_TARGET="shop.rkw-kompetenzzentrum.de@168.119.134.182 -p22"
+REMOTE_CMD="~/shopware-dump.sh"
+
+#echo "!!!!"
+#echo "ATTENTION: This command is currently not configured"
+#echo "!!!!"
+#exit
+
+DUMPDIR="${DDEV_APPROOT}/.dumps"
+mkdir -p "${DUMPDIR}"
+
+LOCAL_URL="${DDEV_SITENAME}.ddev.site:8443"
+DUMPFILE="${DUMPDIR}/${DDEV_SITENAME}-production.sql.gz"
+LOCALBACKUP="${DUMPDIR}/${DDEV_SITENAME}-original.sql.gz"
+
+ssh ${SSH_TARGET} "${REMOTE_CMD} | gzip -9 -c" > "${DUMPFILE}"
+ddev export-db > "${LOCALBACKUP}"
+ddev import-db --file="${DUMPFILE}"
+
+ddev exec shopware/bin/console database:migrate --all --no-interaction || true
+ddev exec shopware/bin/console dal:refresh:index || true
+ddev exec shopware/bin/console cache:clear || true
+ddev exec shopware/bin/console theme:compile || true
+
+ddev exec shopware/bin/console user:create dev-admin \
+  --admin --firstName=Dev --lastName=Admin \
+  --email=dev-admin@example.test --password=TestTest123! \
+  --no-interaction || ddev exec shopware/bin/console user:change-password dev-admin --password=TestTest123!
+
+# Update all sales channel domains to local URL
+ddev exec shopware/bin/console sales-channel:update:domain "$LOCAL_URL" || true
