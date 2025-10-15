@@ -38,3 +38,8 @@ ddev exec shopware/bin/console user:create dev-admin \
 
 # Update all sales channel domains to local URL
 ddev exec shopware/bin/console sales-channel:update:domain "$LOCAL_URL" || true
+echo -e "\e[0;31m================================================================================"
+echo -e "New backend-user created: 'dev-admin' with password 'TestTest123!'"
+echo -e "================================================================================\e[0m"
+
+
