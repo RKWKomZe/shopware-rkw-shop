@@ -19,6 +19,11 @@ vendor
 /.settings
 
 # =======================================================
+# Shopware Credentials
+# =======================================================
+/shopware/.env.local
+
+# =======================================================
 # Files for development and deployment
 # =======================================================
 /.ddev/*
@@ -37,7 +42,7 @@ vendor
 # Ignore locally used htaccess, test-files and assets
 # =======================================================
 /shopware/public/.htaccess
-/shopware//public/.htpasswd
+/shopware/public/.htpasswd
 
 # =======================================================
 # Add custom stuff here

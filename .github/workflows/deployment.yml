@@ -170,7 +170,6 @@ jobs:
             cd ${{ vars.DEPLOY_PATH }}/current
 
             OLD_VERSION_FILE='${{ vars.DEPLOY_PATH }}/shared/.shopware-version'
-
             NEW_VERSION=\$(${{ vars.PHP_BINARY }} bin/console -V | awk '{print \$2}')
             OLD_VERSION=\$(cat \"\$OLD_VERSION_FILE\" 2>/dev/null || echo 'none')
 
@@ -200,7 +199,6 @@ jobs:
               echo 'No core update detected — skipping asset rebuild (using CI build artifacts).'
             fi
           "
-
 
       - name: Run Deployment Helper
         run: |
