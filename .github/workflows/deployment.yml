@@ -163,6 +163,45 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Run Shopware update if needed
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "
+            set -euo pipefail
+            cd ${{ vars.DEPLOY_PATH }}/current
+
+            OLD_VERSION_FILE='${{ vars.DEPLOY_PATH }}/shared/.shopware-version'
+
+            NEW_VERSION=\$(${{ vars.PHP_BINARY }} bin/console -V | awk '{print \$2}')
+            OLD_VERSION=\$(cat \"\$OLD_VERSION_FILE\" 2>/dev/null || echo 'none')
+
+            echo \"Old version: \$OLD_VERSION\"
+            echo \"New version: \$NEW_VERSION\"
+
+            if [ \"\$NEW_VERSION\" != \"\$OLD_VERSION\" ]; then
+              echo 'Detected Shopware core update — running migrations...'
+              ${{ vars.PHP_BINARY }} bin/console system:update:prepare --no-interaction
+              ${{ vars.PHP_BINARY }} bin/console system:update:finish --no-interaction
+              echo \"\$NEW_VERSION\" > \"\$OLD_VERSION_FILE\"
+              touch ${{ vars.DEPLOY_PATH }}/current/.update-ran
+            else
+              echo 'No core update detected.'
+            fi
+          "
+
+      - name: Rebuild assets only if update ran
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "
+            cd ${{ vars.DEPLOY_PATH }}/current
+            if [ -f ${{ vars.DEPLOY_PATH }}/current/.update-ran ]; then
+              echo 'Core update detected — refreshing assets and themes...'
+              ${{ vars.PHP_BINARY }} bin/console theme:compile
+              ${{ vars.PHP_BINARY }} bin/console cache:clear
+            else
+              echo 'No core update detected — skipping asset rebuild (using CI build artifacts).'
+            fi
+          "
+
+
       - name: Run Deployment Helper
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} "
